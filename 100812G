@@ -1,0 +1,75 @@
+#include<bits/stdc++.h>
+using namespace std;
+//#define int long long
+#define ii pair<long long,int>
+#define fi first
+#define se second 
+//#define pb push_back
+const int oo=1e9;
+const int Mod=1e9+7;
+const long long OO=1e18;
+const int N=2e5+5;
+int n, m, par[N];
+long long dis[N];
+vector<ii>ad[N];
+int main()
+{
+	if(fopen("trash.inp", "r"))
+		freopen("trash.inp", "r", stdin), freopen("trash.out", "w", stdout);
+	//else freopen("trash.inp", "r", stdin), freopen("trash.out", "w", stdout);
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	priority_queue<ii, vector<ii>, greater<ii>>s;
+	cin>>n>>m;
+	for(int i=1; i<=n; i++)
+	{
+		dis[i]=OO;
+		int x;
+		cin>>x;
+		if(x)s.push({0,i}), dis[i]=0, par[i]=i;
+	}
+	for(int i=1; i<=m; i++)
+	{
+		int x,y;
+		long long w;
+		cin>>x>>y>>w;
+		ad[x].push_back({y,w});
+		ad[y].push_back({x,w});
+	}
+	while(s.size())
+	{
+		int u=s.top().se;
+		long long dd=s.top().fi;
+		s.pop();
+		if(dis[u]!=dd)continue;
+		for(ii x:ad[u])
+		{
+			int v=x.fi;
+			long long w=x.se;
+			if(dis[v]>dd+w)
+			{
+				dis[v]=dd+w;
+				par[v]=par[u];
+				s.push({dis[v],v});
+			}
+		}
+	}
+	int  ans1, ans2;
+	long long ans=OO;
+	for(int i=1; i<=n; i++)
+	{		
+		for(ii x:ad[i])
+		{
+			int u=x.fi, w=x.se;
+			if(par[i]==par[u])continue;
+			if(ans>dis[i]+dis[u]+w)
+			{
+				ans=dis[i]+dis[u]+w;
+				ans1=par[u]; ans2=par[i];
+			}
+		}
+	}
+	if(ans==OO)cout<<"No luck at all";
+	else cout<<ans<<'\n'<<ans1<<" "<<ans2;
+}
