@@ -1,0 +1,104 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define ii pair<int,int>
+#define fi first
+#define se second 
+//#define pb push_back
+const int oo=1e9;
+const int Mod=1e9+7;
+const long long OO=1e18;
+const int N=1e5+5;
+int n, D[N], U[N], ans1[N],ans2[N], flag[N],res,test;
+vector<ii>ad[N];
+ii ans[N], par[N];
+void upd(int i, int upd1=0, int upd2=0)
+{
+	vector<int>vc;
+	vc.push_back(upd1);
+	vc.push_back(upd2);
+	vc.push_back(ans1[i]);
+	vc.push_back(ans2[i]);
+	sort(vc.begin(),vc.end());
+	ans1[i]=vc[3];
+	ans2[i]=vc[2];
+}
+void down(int u, int par=-1)
+{
+	for(ii v:ad[u])
+	{
+		if(v.fi==par)continue;
+		down(v.fi,u);
+		upd(u,D[v.fi]+v.se);
+		D[u]=max(D[u],D[v.fi]+v.se);
+	}
+}
+void up(int u, int par=-1)
+{
+	for(ii v:ad[u])
+	{
+		if(v.fi==par)continue;
+		int res;
+		if(ans1[u]==v.se+D[v.fi])res=ans2[u];
+		else res=ans1[u];
+		upd(v.fi,res+v.se);
+		U[v.fi]=max(U[v.fi],res+v.se);
+		up(v.fi,u);
+	}
+}
+int root(int u){ return par[u].fi==u ? u : par[u].fi=root(par[u].fi);}
+void remove(int k)
+{
+	flag[k]=0;
+	int u=root(k);
+	par[u].se--;
+}
+void add(int u)
+{
+	flag[u]=1;
+	for(ii v:ad[u])
+	{
+		if(!flag[v.fi])continue;
+		int uu=root(u), vv=root(v.fi);
+		if(par[uu].se<par[vv].se)swap(uu,vv);
+		par[uu].se+=par[vv].se;
+		par[vv].fi=uu;
+		res=max(res,par[uu].se);
+	}
+}
+ main()
+{
+  if(fopen("trash.inp", "r"))
+    freopen("trash.inp", "r", stdin), freopen("trash.out", "w", stdout);
+  //else freopen("trash.inp", "r", stdin), freopen("trash.out", "w", stdout);
+  ios::sync_with_stdio(0);
+  cin.tie(0);	
+  cout.tie(0);
+  cin>>n;
+  for(int i=1; i<n; i++)
+  {
+  	int u,v,w;
+  	cin>>u>>v>>w;
+  	ad[u].push_back({v,w});
+  	ad[v].push_back({u,w});
+  }
+  down(1);
+  up(1);
+  for(int i=1; i<=n; i++) ans[i]={max(U[i],D[i]),i};
+  sort(ans+1,ans+n+1);
+  reverse(ans+1,ans+n+1);
+  cin>>test;
+  while(test--)
+  {
+  	int l; cin>>l;
+  	res=1;
+  	for(int i=1; i<=n; i++)par[i]={i,1}, flag[i]=0;
+  	int II=1;
+  	for(int i=1; i<=n; i++)
+  	{ 
+  		while(II<=n && ans[i].fi-ans[II].fi<=l)add(ans[II++].se);
+  		remove(ans[i].se);
+  	}
+  	cout<<res<<'\n';
+  }
+}
